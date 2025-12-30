@@ -1,107 +1,119 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Cinematic Video from Image</title>
+<title>Digital Design Showcase</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body { font-family: Arial; background:#0a0f2c; color:#fff; text-align:center; padding:20px; }
-input, button { margin:10px 0; padding:12px; width:90%; max-width:400px; border-radius:6px; border:none; }
-button { background:#00ffcc; color:#000; font-weight:bold; cursor:pointer; }
-video { width:100%; max-width:600px; margin-top:20px; border-radius:10px; }
-#status { color:#00ffcc; margin-top:10px; font-weight:bold; }
-a { display:block; margin-top:10px; color:#00ffcc; text-decoration:none; font-weight:bold; }
-canvas { display:none; }
+/* ---------- Reset & Base ---------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Arial', sans-serif; background: #0a0f2c; color: #fff; overflow-x: hidden; }
+
+/* ---------- Container ---------- */
+.container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 40px 20px;
+}
+
+/* ---------- Heading ---------- */
+h1 {
+  text-align: center;
+  font-size: 2.5em;
+  margin-bottom: 40px;
+  color: #00ffcc;
+}
+
+/* ---------- Image Grid ---------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+/* ---------- Card ---------- */
+.card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: transform 0.5s ease;
+}
+
+.card img {
+  width: 100%;
+  display: block;
+  transition: transform 1s ease, filter 0.5s ease;
+}
+
+.card:hover img {
+  transform: scale(1.1) rotate(1deg);
+  filter: brightness(1.2) contrast(1.1);
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.6) 100%);
+  pointer-events: none;
+}
+
+/* ---------- Card Caption ---------- */
+.card-caption {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(0,0,0,0.7);
+}
+
+/* ---------- Parallax Scroll Effect ---------- */
+.card[data-speed] {
+  transform: translateY(0px);
+  transition: transform 0.2s ease-out;
+}
 </style>
 </head>
 <body>
 
-<h1>Cinematic Video from Image</h1>
+<div class="container">
+  <h1>Digital Design Showcase</h1>
 
-<input type="file" id="imageInput" accept="image/*"><br>
-<button id="generateBtn">Generate Video</button>
-
-<p id="status"></p>
-<video id="resultVideo" controls style="display:none"></video>
-<a id="downloadBtn" style="display:none;"></a>
-<canvas id="canvas"></canvas>
+  <div class="grid">
+    <div class="card" data-speed="2">
+      <img src="https://picsum.photos/600/400?random=1" alt="Design 1">
+      <div class="card-caption">Creative Poster</div>
+    </div>
+    <div class="card" data-speed="4">
+      <img src="https://picsum.photos/600/400?random=2" alt="Design 2">
+      <div class="card-caption">Cinematic Banner</div>
+    </div>
+    <div class="card" data-speed="3">
+      <img src="https://picsum.photos/600/400?random=3" alt="Design 3">
+      <div class="card-caption">UI Concept</div>
+    </div>
+    <div class="card" data-speed="5">
+      <img src="https://picsum.photos/600/400?random=4" alt="Design 4">
+      <div class="card-caption">Motion Graphic</div>
+    </div>
+  </div>
+</div>
 
 <script>
-const imageInput = document.getElementById('imageInput');
-const generateBtn = document.getElementById('generateBtn');
-const statusEl = document.getElementById('status');
-const resultVideo = document.getElementById('resultVideo');
-const downloadBtn = document.getElementById('downloadBtn');
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-
-generateBtn.addEventListener('click', () => {
-    const file = imageInput.files[0];
-    if (!file) return alert("Please select an image!");
-
-    const img = new Image();
-    img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-
-        const fps = 30;
-        const duration = 15; // seconds
-        const totalFrames = fps * duration;
-        let frame = 0;
-
-        const stream = canvas.captureStream(fps);
-        const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-        const chunks = [];
-
-        recorder.ondataavailable = e => { if(e.data && e.data.size>0) chunks.push(e.data); };
-        recorder.onstop = () => {
-            const blob = new Blob(chunks, { type: 'video/webm' });
-            const url = URL.createObjectURL(blob);
-            resultVideo.src = url;
-            resultVideo.style.display = "block";
-
-            downloadBtn.href = url;
-            downloadBtn.download = "cinematic_video.webm";
-            downloadBtn.innerText = "Download Video";
-            downloadBtn.style.display = "block";
-
-            statusEl.innerText = "Video ready!";
-        };
-        recorder.start();
-
-        function draw() {
-            if (frame >= totalFrames) {
-                recorder.stop();
-                return;
-            }
-
-            // Clear canvas
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-
-            // Cinematic effect: slow zoom-in + pan
-            const scale = 1 + 0.1 * (frame/totalFrames);
-            const x = (canvas.width - canvas.width*scale)/2;
-            const y = (canvas.height - canvas.height*scale)/2;
-
-            ctx.drawImage(img, x, y, canvas.width*scale, canvas.height*scale);
-
-            // Optional: add color grading
-            ctx.globalAlpha = 1;
-            ctx.fillStyle = "rgba(0,0,0,0.05)";
-            ctx.fillRect(0,0,canvas.width,canvas.height);
-
-            frame++;
-            requestAnimationFrame(draw);
-        }
-
-        draw();
-        statusEl.innerText = "Generating video, please wait...";
-    };
-
-    img.src = URL.createObjectURL(file);
+// ---------- Simple Parallax Scroll ----------
+const cards = document.querySelectorAll('.card[data-speed]');
+window.addEventListener('scroll', () => {
+  const scrollTop = window.pageYOffset;
+  cards.forEach(card => {
+    const speed = card.getAttribute('data-speed');
+    card.style.transform = `translateY(${scrollTop / speed}px)`;
+  });
 });
 </script>
 
 </body>
 </html>
-

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vision3D AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Splash Screen -->
+<div id="splash">
+  <h1>Vision3D AI</h1>
+  <p>AI Image to Video</p>
+  <span>Developed by Mousa Al-Aghbari</span>
+</div>
+
+<!-- App -->
+<div class="app hidden">
+  <h1>Vision3D AI</h1>
+  <p>Image to AI Video Generator</p>
+
+  <input type="file" id="imageInput" accept="image/*">
+
+  <select id="model">
+    <option value="svd">Stable Video Diffusion</option>
+    <option value="animatediff">AnimateDiff</option>
+    <option value="demo">Demo Mode (Offline)</option>
+  </select>
+
+  <button onclick="generate()">Generate Video</button>
+
+  <div id="status"></div>
+  <video id="video" controls></video>
+
+  <footer>
+    Developed by <b>Mousa Al-Aghbari</b>
+  </footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

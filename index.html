@@ -1,43 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Vision3D AI</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Animation</title>
+
+<style>
+:root{
+    --bg1:#0f2027;
+    --bg2:#203a43;
+    --bg3:#2c5364;
+    --accent:#00e5ff;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family: Arial, sans-serif;
+}
+
+body{
+    height:100vh;
+    background:linear-gradient(135deg,var(--bg1),var(--bg2),var(--bg3));
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:#ffffff;
+}
+
+.app{
+    background:rgba(255,255,255,0.08);
+    border-radius:24px;
+    padding:40px;
+    width:360px;
+    text-align:center;
+    box-shadow:0 30px 80px rgba(0,0,0,0.4);
+}
+
+.app h1{
+    font-size:26px;
+    margin-bottom:8px;
+}
+
+.app p{
+    opacity:0.8;
+    margin-bottom:30px;
+}
+
+.avatar{
+    width:180px;
+    height:180px;
+    margin:0 auto 30px;
+    background:#ffffff;
+    border-radius:50%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    position:relative;
+    animation: float 4s ease-in-out infinite;
+}
+
+.face{
+    width:120px;
+    height:120px;
+    position:relative;
+}
+
+.eye{
+    width:18px;
+    height:18px;
+    background:#000000;
+    border-radius:50%;
+    position:absolute;
+    top:35px;
+    animation: blink 5s infinite;
+}
+
+.eye.left{ left:25px; }
+.eye.right{ right:25px; }
+
+.mouth{
+    width:50px;
+    height:25px;
+    border-bottom:5px solid #000000;
+    border-radius:0 0 50px 50px;
+    position:absolute;
+    bottom:30px;
+    left:35px;
+    animation: talk 2.5s infinite;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:30px;
+    background:linear-gradient(135deg,#00e5ff,#0077ff);
+    color:#000000;
+    font-size:16px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.footer{
+    margin-top:25px;
+    font-size:13px;
+    opacity:0.7;
+}
+
+/* Animations */
+@keyframes float{
+    0%,100%{ transform:translateY(0); }
+    50%{ transform:translateY(-18px); }
+}
+
+@keyframes blink{
+    0%,92%,100%{ transform:scaleY(1); }
+    95%{ transform:scaleY(0.1); }
+}
+
+@keyframes talk{
+    0%,100%{ height:25px; }
+    50%{ height:12px; }
+}
+</style>
 </head>
+
 <body>
 
-<!-- Splash Screen -->
-<div id="splash">
-  <h1>Vision3D AI</h1>
-  <p>AI Image to Video</p>
-  <span>Developed by Mousa Al-Aghbari</span>
+<div class="app">
+    <h1>AI Animation</h1>
+    <p>Professional Animation Interface</p>
+
+    <div class="avatar">
+        <div class="face">
+            <div class="eye left"></div>
+            <div class="eye right"></div>
+            <div class="mouth"></div>
+        </div>
+    </div>
+
+    <button>Start</button>
+
+    <div class="footer">
+        Designed by MOUSA alaghbari
+    </div>
 </div>
 
-<!-- App -->
-<div class="app hidden">
-  <h1>Vision3D AI</h1>
-  <p>Image to AI Video Generator</p>
-
-  <input type="file" id="imageInput" accept="image/*">
-
-  <select id="model">
-    <option value="svd">Stable Video Diffusion</option>
-    <option value="animatediff">AnimateDiff</option>
-    <option value="demo">Demo Mode (Offline)</option>
-  </select>
-
-  <button onclick="generate()">Generate Video</button>
-
-  <div id="status"></div>
-  <video id="video" controls></video>
-
-  <footer>
-    Developed by <b>Mousa Al-Aghbari</b>
-  </footer>
-</div>
-
-<script src="script.js"></script>
 </body>
 </html>
+

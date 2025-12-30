@@ -1,134 +1,111 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>Digital Design Portfolio</title>
+<title>اختبار MBTI - 14 سؤال</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-/* ---------- Base ---------- */
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Arial', sans-serif; background:#0a0f2c; color:#fff; overflow-x: hidden; }
-a { text-decoration:none; color: inherit; }
-
-/* ---------- Container ---------- */
-.container {
-  max-width: 1200px;
-  margin: auto;
-  padding: 40px 20px;
-}
-
-/* ---------- Heading ---------- */
-h1 {
-  text-align: center;
-  font-size: 2.5em;
-  margin-bottom: 40px;
-  color: #00ffcc;
-}
-
-/* ---------- Grid ---------- */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 30px;
-}
-
-/* ---------- Card ---------- */
-.card {
-  position: relative;
-  overflow: hidden;
-  border-radius: 15px;
-  cursor: pointer;
-  transform: scale(0.9);
-  opacity: 0;
-  transition: transform 0.6s ease, opacity 0.6s ease;
-}
-
-.card img {
-  width: 100%;
-  display: block;
-  transition: transform 1s ease, filter 0.5s ease;
-}
-
-.card:hover img {
-  transform: scale(1.1) rotate(1deg);
-  filter: brightness(1.2) contrast(1.1);
-}
-
-.card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.6) 100%);
-  pointer-events: none;
-}
-
-.card-caption {
-  position: absolute;
-  bottom: 20px;
-  left: 20px;
-  font-size: 1.1em;
-  font-weight: bold;
-  color: #fff;
-  text-shadow: 0 0 10px rgba(0,0,0,0.7);
-}
-
-/* ---------- Fade-in + Scale Animation ---------- */
-.card.visible {
-  transform: scale(1);
-  opacity: 1;
-}
+body { font-family: Arial, sans-serif; background:#f0f0f0; color:#333; padding:20px; direction: rtl; }
+h1 { text-align:center; color:#0077cc; }
+.container { max-width:700px; margin:auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1);}
+.question { margin-bottom:20px; }
+button { padding:10px 20px; background:#0077cc; color:#fff; border:none; border-radius:5px; cursor:pointer; }
+button:hover { background:#005fa3; }
+#result { margin-top:20px; padding:15px; background:#e0f0ff; border-radius:10px; }
+label { display:block; margin-top:5px; }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>My Digital Design Portfolio</h1>
-
-  <div class="grid">
-    <div class="card">
-      <img src="https://picsum.photos/600/400?random=1" alt="Design 1">
-      <div class="card-caption">Creative Poster</div>
-    </div>
-    <div class="card">
-      <img src="https://picsum.photos/600/400?random=2" alt="Design 2">
-      <div class="card-caption">Cinematic Banner</div>
-    </div>
-    <div class="card">
-      <img src="https://picsum.photos/600/400?random=3" alt="Design 3">
-      <div class="card-caption">UI Concept</div>
-    </div>
-    <div class="card">
-      <img src="https://picsum.photos/600/400?random=4" alt="Design 4">
-      <div class="card-caption">Motion Graphic</div>
-    </div>
-    <div class="card">
-      <img src="https://picsum.photos/600/400?random=5" alt="Design 5">
-      <div class="card-caption">Web Design Mockup</div>
-    </div>
-    <div class="card">
-      <img src="https://picsum.photos/600/400?random=6" alt="Design 6">
-      <div class="card-caption">Digital Illustration</div>
-    </div>
-  </div>
+  <h1>اختبار MBTI الشخصي (14 سؤال)</h1>
+  <form id="mbtiForm">
+    <!-- الأسئلة ستضاف تلقائيًا -->
+  </form>
+  <button type="button" onclick="calculateMBTI()">عرض النتيجة</button>
+  <div id="result"></div>
 </div>
 
 <script>
-// ---------- Fade-in + Scale on scroll ----------
-const cards = document.querySelectorAll('.card');
+// ---------- تعريف الأسئلة باللغة العربية ----------
+const questions = [
+  { q:"هل تفضل التركيز على العالم الخارجي أم على عالمك الداخلي؟", options:["الانبساط (E)","الانطواء (I)"], type:"EI" },
+  { q:"هل تفضل التركيز على المعلومات الأساسية أم تفسيرها وإضافة معنى؟", options:["الحسية (S)","الحدسية (N)"], type:"SN" },
+  { q:"عند اتخاذ القرارات، هل تعتمد على المنطق أم على المشاعر والقيم الشخصية؟", options:["التفكير (T)","الشعور (F)"], type:"TF" },
+  { q:"هل تفضل اتخاذ القرارات سريعًا أم تفضل ترك الأمور مفتوحة؟", options:["الحكم (J)","الإدراك (P)"], type:"JP" },
 
-function revealCards() {
-  const triggerBottom = window.innerHeight * 0.85;
+  { q:"هل تشعر بالنشاط عند التفاعل مع الآخرين أم عند قضاء الوقت بمفردك؟", options:["E","I"], type:"EI" },
+  { q:"هل تفضل الحقائق الملموسة أم الاحتمالات المجردة؟", options:["S","N"], type:"SN" },
+  { q:"هل تعتمد في قراراتك على المنطق أم القيم الشخصية؟", options:["T","F"], type:"TF" },
+  { q:"هل تفضل التخطيط والتنظيم أم المرونة والعفوية؟", options:["J","P"], type:"JP" },
 
-  cards.forEach(card => {
-    const cardTop = card.getBoundingClientRect().top;
-    if (cardTop < triggerBottom) {
-      card.classList.add('visible');
-    }
+  { q:"هل تشعر بالراحة في المجموعات أم تفضل اللقاءات الصغيرة؟", options:["E","I"], type:"EI" },
+  { q:"هل تثق في الخبرة أم في الإلهام والحدس؟", options:["S","N"], type:"SN" },
+  { q:"هل تقدر العدالة أم التعاطف أكثر؟", options:["T","F"], type:"TF" },
+  { q:"هل تحب اتباع جداول منظمة أم الترتيب العفوي؟", options:["J","P"], type:"JP" },
+
+  { q:"هل تستمتع بالنشاط الاجتماعي؟", options:["E","I"], type:"EI" },
+  { q:"هل تركز على التفاصيل أم على الصورة الكبيرة؟", options:["S","N"], type:"SN" },
+];
+
+// ---------- توليد الأسئلة في النموذج ----------
+const form = document.getElementById('mbtiForm');
+questions.forEach((item,index)=>{
+  const div = document.createElement('div');
+  div.className = "question";
+  div.innerHTML = `<p>${index+1}. ${item.q}</p>
+    <label><input type="radio" name="q${index}" value="${item.options[0]}" required> ${item.options[0]}</label>
+    <label><input type="radio" name="q${index}" value="${item.options[1]}" required> ${item.options[1]}</label>`;
+  form.appendChild(div);
+});
+
+// ---------- تعريف وصف كل نوع ----------
+const mbtiDescriptions = {
+  "ISTJ":"منظم، مسؤول، يهتم بالتفاصيل ويحب الالتزام بالقواعد.",
+  "ISFJ":"ودود، موثوق، يهتم بالآخرين ومسؤول.",
+  "INFJ":"مبدع، متفهم، يتمتع برؤية عميقة.",
+  "INTJ":"استراتيجي، محلل، مستقل ويحب التخطيط.",
+  "ISTP":"عملي، ملاحظ، يتكيف مع المواقف بسهولة.",
+  "ISFP":"لطيف، مرن، حساس ويقدر الجمال.",
+  "INFP":"مثالي، متعاطف، متأمل ويبحث عن المعنى.",
+  "INTP":"محلل، فضولي، مبتكر ويحب الأفكار الجديدة.",
+  "ESTP":"نشط، عملي، يحب التجربة والمغامرة.",
+  "ESFP":"اجتماعي، مرح، يحب التفاعل مع الآخرين.",
+  "ENFP":"متحمس، خلاق، اجتماعي ويحب الأفكار الجديدة.",
+  "ENTP":"مبتكر، ذكي، يحب التحدي والاستكشاف.",
+  "ESTJ":"منظم، حازم، يعتمد على المنطق والتخطيط.",
+  "ESFJ":"متعاون، اجتماعي، يهتم بالآخرين ويحب التنظيم.",
+  "ENFJ":"كاريزمي، متفهم، قادر على تحفيز الآخرين.",
+  "ENTJ":"قائد، استراتيجي، واثق من نفسه ويحب التخطيط."
+};
+
+// ---------- حساب نتيجة MBTI ----------
+function calculateMBTI(){
+  const answers = new FormData(form);
+  let scores = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+
+  questions.forEach((item,index)=>{
+    const ans = answers.get('q'+index);
+    if(ans.includes("E") || ans.includes("الانبساط")) scores.E++;
+    if(ans.includes("I") || ans.includes("الانطواء")) scores.I++;
+    if(ans.includes("S") || ans.includes("الحسية")) scores.S++;
+    if(ans.includes("N") || ans.includes("الحدسية")) scores.N++;
+    if(ans.includes("T") || ans.includes("التفكير")) scores.T++;
+    if(ans.includes("F") || ans.includes("الشعور")) scores.F++;
+    if(ans.includes("J") || ans.includes("الحكم")) scores.J++;
+    if(ans.includes("P") || ans.includes("الإدراك")) scores.P++;
   });
-}
 
-window.addEventListener('scroll', revealCards);
-window.addEventListener('load', revealCards);
+  const EI = scores.E >= scores.I ? "E" : "I";
+  const SN = scores.S >= scores.N ? "S" : "N";
+  const TF = scores.T >= scores.F ? "T" : "F";
+  const JP = scores.J >= scores.P ? "J" : "P";
+
+  const mbtiType = EI+SN+TF+JP;
+  const description = mbtiDescriptions[mbtiType] || "وصف غير متوفر لهذا النوع.";
+
+  document.getElementById('result').innerHTML = `<h2>نوع شخصيتك: ${mbtiType}</h2><p>${description}</p>`;
+}
 </script>
 
 </body>

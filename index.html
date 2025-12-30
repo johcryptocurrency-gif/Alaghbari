@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,9 +6,7 @@
 <title>NEURAL INFINITE AI ENGINE</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- ===================== GLOBAL STYLE SYSTEM ===================== -->
 <style>
-/* ================= ROOT VARIABLES ================= */
 :root{
     --bg-0:#02030a;
     --bg-1:#05081a;
@@ -15,264 +14,54 @@
     --panel:#0a0f24;
     --accent:#00f7ff;
     --accent2:#7cff00;
-    --accent3:#ff00aa;
     --text:#e8f9ff;
-    --muted:#7a8aa0;
-    --danger:#ff0044;
-    --glass:rgba(255,255,255,0.06);
     --border:rgba(255,255,255,0.12);
+    --glass:rgba(255,255,255,0.06);
 }
 
-/* ================= RESET ================= */
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family: "Segoe UI", system-ui, sans-serif;
+*{margin:0; padding:0; box-sizing:border-box; font-family:"Segoe UI",sans-serif;}
+html,body{width:100%; height:100%; background:radial-gradient(circle at top,var(--bg-2),var(--bg-0)); color:var(--text); overflow:hidden;}
+
+#app{width:100%; height:100%; display:grid; grid-template-columns:360px 1fr 360px; grid-template-rows:70px 1fr 50px; grid-template-areas:"header header header" "left center right" "footer footer footer";}
+
+header{grid-area:header; display:flex; align-items:center; justify-content:space-between; padding:0 24px; background:linear-gradient(180deg,var(--panel),transparent); border-bottom:1px solid var(--border);}
+header h1{font-size:18px; letter-spacing:3px;}
+header .status{font-size:12px; color:var(--accent);}
+
+#left{grid-area:left; background:linear-gradient(180deg,var(--panel),var(--bg-1)); border-right:1px solid var(--border); padding:18px; display:flex; flex-direction:column; gap:16px; overflow:auto;}
+.block{background:var(--glass); border:1px solid var(--border); border-radius:14px; padding:14px;}
+.block h2{font-size:13px; letter-spacing:1px; margin-bottom:10px; color:var(--accent);}
+.upload{border:2px dashed var(--border); border-radius:14px; padding:24px; text-align:center; cursor:pointer; transition:.3s;}
+.upload:hover{border-color:var(--accent);}
+.upload input{display:none;}
+textarea{width:100%; min-height:120px; background:#02040d; border:1px solid var(--border); color:var(--text); padding:12px; border-radius:10px; resize:none;}
+.option-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+.option{padding:10px; font-size:11px; text-align:center; border:1px solid var(--border); border-radius:10px; background:#02040d;}
+
+#center{grid-area:center; position:relative; background:radial-gradient(circle at center,rgba(0,247,255,.12),transparent 60%), linear-gradient(180deg,var(--bg-1),var(--bg-0)); display:flex; align-items:center; justify-content:center;}
+#viewport{width:72%; aspect-ratio:16/9; background:black; border-radius:18px; overflow:hidden; position:relative; box-shadow:0 0 120px rgba(0,247,255,.25);}
+#viewport img{width:100%; height:100%; object-fit:cover; animation: idle 8s ease-in-out infinite;}
+.layer-scan{position:absolute; inset:0; background:linear-gradient(120deg,transparent,rgba(0,247,255,.18),transparent); mix-blend-mode:screen; animation: scan 4s linear infinite;}
+.layer-noise{position:absolute; inset:0; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='rgba(255,255,255,0.02)'/%3E%3C/svg%3E"); opacity:.25;}
+.hud{position:absolute; bottom:16px; left:16px; background:rgba(0,0,0,.6); backdrop-filter:blur(10px); border:1px solid var(--border); padding:12px; font-size:11px; border-radius:12px; line-height:1.6;}
+
+#right{grid-area:right; background:linear-gradient(180deg,var(--panel),var(--bg-1)); border-left:1px solid var(--border); padding:18px; display:flex; flex-direction:column; gap:14px;}
+.timeline{height:180px; background:#02040d; border-radius:12px; border:1px solid var(--border); position:relative; overflow:hidden;}
+.timeline::after{content:"∞"; position:absolute; right:12px; top:10px; font-size:40px; color:rgba(0,247,255,.15);}
+.log{flex:1; background:#02040d; border-radius:12px; border:1px solid var(--border); padding:10px; font-size:11px; overflow:auto;}
+
+footer{grid-area:footer; display:flex; align-items:center; justify-content:space-between; padding:0 20px; font-size:11px; color:#7a8aa0; border-top:1px solid var(--border);}
+button{padding:14px; border-radius:14px; border:none; cursor:pointer; font-weight:bold; letter-spacing:1px; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:black; box-shadow:0 0 30px rgba(0,247,255,.4);}
+
+.progress-bar{
+    width:100%; height:10px; background:#02040d; border-radius:8px; overflow:hidden; margin-top:8px;
+}
+.progress{
+    width:0%; height:100%; background:var(--accent2); transition:width .3s;
 }
 
-html,body{
-    width:100%;
-    height:100%;
-    background:radial-gradient(circle at top,var(--bg-2),var(--bg-0));
-    color:var(--text);
-    overflow:hidden;
-}
-
-/* ================= MAIN APP ================= */
-#app{
-    width:100%;
-    height:100%;
-    display:grid;
-    grid-template-columns:360px 1fr 360px;
-    grid-template-rows:70px 1fr 50px;
-    grid-template-areas:
-        "header header header"
-        "left center right"
-        "footer footer footer";
-}
-
-/* ================= HEADER ================= */
-header{
-    grid-area:header;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 24px;
-    background:linear-gradient(180deg,var(--panel),transparent);
-    border-bottom:1px solid var(--border);
-}
-
-header h1{
-    font-size:18px;
-    letter-spacing:3px;
-}
-
-header .status{
-    font-size:12px;
-    color:var(--accent);
-}
-
-/* ================= LEFT PANEL ================= */
-#left{
-    grid-area:left;
-    background:linear-gradient(180deg,var(--panel),var(--bg-1));
-    border-right:1px solid var(--border);
-    padding:18px;
-    display:flex;
-    flex-direction:column;
-    gap:16px;
-    overflow:auto;
-}
-
-.block{
-    background:var(--glass);
-    border:1px solid var(--border);
-    border-radius:14px;
-    padding:14px;
-}
-
-.block h2{
-    font-size:13px;
-    letter-spacing:1px;
-    margin-bottom:10px;
-    color:var(--accent);
-}
-
-.upload{
-    border:2px dashed var(--border);
-    border-radius:14px;
-    padding:24px;
-    text-align:center;
-    cursor:pointer;
-    transition:.3s;
-}
-.upload:hover{
-    border-color:var(--accent);
-}
-
-.upload input{
-    display:none;
-}
-
-textarea{
-    width:100%;
-    min-height:120px;
-    background:#02040d;
-    border:1px solid var(--border);
-    color:var(--text);
-    padding:12px;
-    border-radius:10px;
-    resize:none;
-}
-
-.option-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:8px;
-}
-
-.option{
-    padding:10px;
-    font-size:11px;
-    text-align:center;
-    border:1px solid var(--border);
-    border-radius:10px;
-    background:#02040d;
-}
-
-/* ================= CENTER STAGE ================= */
-#center{
-    grid-area:center;
-    position:relative;
-    background:
-        radial-gradient(circle at center,rgba(0,247,255,.12),transparent 60%),
-        linear-gradient(180deg,var(--bg-1),var(--bg-0));
-    display:flex;
-    align-items:center;
-    justify-content:center;
-}
-
-#viewport{
-    width:72%;
-    aspect-ratio:16/9;
-    background:black;
-    border-radius:18px;
-    overflow:hidden;
-    position:relative;
-    box-shadow:0 0 120px rgba(0,247,255,.25);
-}
-
-#viewport img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    animation: idle 8s ease-in-out infinite;
-}
-
-/* ================= AI LAYERS ================= */
-.layer-scan{
-    position:absolute;
-    inset:0;
-    background:linear-gradient(120deg,transparent,rgba(0,247,255,.18),transparent);
-    mix-blend-mode:screen;
-    animation: scan 4s linear infinite;
-}
-
-.layer-noise{
-    position:absolute;
-    inset:0;
-    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Crect width='120' height='120' fill='rgba(255,255,255,0.02)'/%3E%3C/svg%3E");
-    opacity:.25;
-}
-
-.hud{
-    position:absolute;
-    bottom:16px;
-    left:16px;
-    background:rgba(0,0,0,.6);
-    backdrop-filter:blur(10px);
-    border:1px solid var(--border);
-    padding:12px;
-    font-size:11px;
-    border-radius:12px;
-    line-height:1.6;
-}
-
-/* ================= RIGHT PANEL ================= */
-#right{
-    grid-area:right;
-    background:linear-gradient(180deg,var(--panel),var(--bg-1));
-    border-left:1px solid var(--border);
-    padding:18px;
-    display:flex;
-    flex-direction:column;
-    gap:14px;
-}
-
-.timeline{
-    height:180px;
-    background:#02040d;
-    border-radius:12px;
-    border:1px solid var(--border);
-    position:relative;
-    overflow:hidden;
-}
-
-.timeline::after{
-    content:"∞";
-    position:absolute;
-    right:12px;
-    top:10px;
-    font-size:40px;
-    color:rgba(0,247,255,.15);
-}
-
-.log{
-    flex:1;
-    background:#02040d;
-    border-radius:12px;
-    border:1px solid var(--border);
-    padding:10px;
-    font-size:11px;
-    overflow:auto;
-}
-
-/* ================= FOOTER ================= */
-footer{
-    grid-area:footer;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 20px;
-    font-size:11px;
-    color:var(--muted);
-    border-top:1px solid var(--border);
-}
-
-/* ================= BUTTONS ================= */
-button{
-    padding:14px;
-    border-radius:14px;
-    border:none;
-    cursor:pointer;
-    font-weight:bold;
-    letter-spacing:1px;
-    background:linear-gradient(135deg,var(--accent),var(--accent2));
-    color:black;
-    box-shadow:0 0 30px rgba(0,247,255,.4);
-}
-
-/* ================= ANIMATIONS ================= */
-@keyframes idle{
-    0%,100%{ transform:scale(1) translateY(0); }
-    50%{ transform:scale(1.05) translateY(-12px); }
-}
-
-@keyframes scan{
-    0%{ transform:translateX(-100%); }
-    100%{ transform:translateX(100%); }
-}
+@keyframes idle{0%,100%{ transform:scale(1) translateY(0); }50%{ transform:scale(1.05) translateY(-12px); }}
+@keyframes scan{0%{ transform:translateX(-100%); }100%{ transform:translateX(100%); }}
 </style>
 </head>
 
@@ -285,12 +74,10 @@ button{
     <div class="status">ONLINE · GPU LINK READY</div>
 </header>
 
-<!-- ================= LEFT ================= -->
 <section id="left">
     <div class="block">
         <h2>IMAGE INPUT</h2>
-        <label class="upload">
-            Upload Image
+        <label class="upload">Upload Image
             <input type="file" id="imageInput" accept="image/*">
         </label>
     </div>
@@ -298,6 +85,11 @@ button{
     <div class="block">
         <h2>PROMPT</h2>
         <textarea id="prompt">Describe motion, atmosphere, emotions, camera, universe...</textarea>
+    </div>
+
+    <div class="block">
+        <h2>PROCESS SPEED</h2>
+        <input type="range" id="speedRange" min="1" max="10" value="5">
     </div>
 
     <div class="block">
@@ -313,28 +105,24 @@ button{
     </div>
 
     <button onclick="startAI()">INITIATE GENERATION</button>
+    <button id="downloadBtn" style="margin-top:8px;">DOWNLOAD VIDEO</button>
+    <div class="progress-bar"><div class="progress" id="progress"></div></div>
 </section>
 
-<!-- ================= CENTER ================= -->
 <section id="center">
     <div id="viewport">
         <img id="preview" hidden>
         <div class="layer-scan"></div>
         <div class="layer-noise"></div>
-        <div class="hud" id="hud">
-            SYSTEM IDLE<br>
-            Awaiting Input...
-        </div>
+        <div class="hud" id="hud">SYSTEM IDLE<br>Awaiting Input...</div>
     </div>
 </section>
 
-<!-- ================= RIGHT ================= -->
 <section id="right">
     <div class="block">
         <h2>INFINITE TIMELINE</h2>
         <div class="timeline"></div>
     </div>
-
     <div class="block">
         <h2>AI LOG</h2>
         <div class="log" id="log"></div>
@@ -346,13 +134,14 @@ button{
     <div>Neural Runtime v∞</div>
 </footer>
 
-</div>
-
 <script>
 const input = document.getElementById("imageInput");
 const img = document.getElementById("preview");
 const hud = document.getElementById("hud");
 const log = document.getElementById("log");
+const progress = document.getElementById("progress");
+const downloadBtn = document.getElementById("downloadBtn");
+let videoBlob = null;
 
 function logMsg(msg){
     log.innerHTML += msg + "<br>";
@@ -370,13 +159,43 @@ input.addEventListener("change",()=>{
 
 function startAI(){
     const prompt = document.getElementById("prompt").value;
+    const speed = document.getElementById("speedRange").value;
     hud.innerHTML = "AI RUNNING<br>Infinite Time Mode";
-    logMsg("▶ Prompt received");
-    logMsg("▶ Building motion graph");
-    logMsg("▶ Temporal loop: ∞");
-    logMsg("▶ Style evolution active");
-    logMsg("▶ Video stream generation (simulated)");
+
+    logMsg(`▶ Prompt received: ${prompt}`);
+    logMsg(`▶ Processing speed: ${speed}`);
+
+    // Simulate AI processing
+    let p = 0;
+    progress.style.width = '0%';
+    const interval = setInterval(()=>{
+        p += Math.random()*5*speed;
+        if(p>=100) p=100;
+        progress.style.width = p+'%';
+        logMsg(`Processing... ${Math.floor(p)}%`);
+        if(p>=100){
+            clearInterval(interval);
+            logMsg("✔ AI processing complete!");
+            hud.innerHTML = "AI READY<br>Video Generated";
+            // Simulate video blob
+            const data = new Blob(["Simulated video content"], {type:"video/mp4"});
+            videoBlob = URL.createObjectURL(data);
+        }
+    }, 200);
 }
+
+downloadBtn.onclick = ()=>{
+    if(!videoBlob){
+        alert("Video not ready yet!");
+        return;
+    }
+    const a = document.createElement("a");
+    a.href = videoBlob;
+    a.download = "AI_VIDEO.mp4";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+};
 </script>
 
 </body>

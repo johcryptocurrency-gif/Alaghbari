@@ -22,7 +22,7 @@ a { display:block; margin-top:10px; color:#00ffcc; text-decoration:none; font-we
 
 <button id="generateBtn">Generate Cinematic Video</button>
 
-<p id="status"></p>
+<p id="status">Or try the <a href="demo/demo_video.mp4" target="_blank">Demo Video</a></p>
 
 <video id="resultVideo" controls style="display:none"></video>
 <a id="downloadBtn" style="display:none;"></a>
@@ -42,40 +42,29 @@ const API_KEY = "YOUR_API_KEY_HERE";
 generateBtn.addEventListener('click', async () => {
     const file = imageInput.files[0];
     const prompt = promptInput.value.trim();
-
-    if (!file) {
-        alert("Please select an image to generate video.");
-        return;
-    }
+    if (!file) return alert("Please select an image to generate video.");
 
     statusEl.innerText = "Preparing image and starting video generation...";
 
     const formData = new FormData();
     formData.append("first_frame_image", file);
     formData.append("prompt", prompt);
-    formData.append("frames", 450); // 15 seconds @ 30fps
+    formData.append("frames", 450);
     formData.append("fps", 30);
 
     try {
         const response = await fetch(API_URL, {
             method: "POST",
-            headers: {
-                "Authorization": `Bearer ${API_KEY}`
-            },
+            headers: { "Authorization": `Bearer ${API_KEY}` },
             body: formData
         });
-
         const data = await response.json();
-        if (!data.request_id) {
-            throw new Error("Unexpected response from the server.");
-        }
+        if (!data.request_id) throw new Error("Unexpected response from the server.");
 
         statusEl.innerText = "Video generation in progress. Please wait...";
-
         pollForResult(data.request_id);
-
     } catch (err) {
-        statusEl.innerText = "Error while starting video generation: " + err.message;
+        statusEl.innerText = "Error starting video generation: " + err.message;
         console.error(err);
     }
 });
@@ -84,9 +73,7 @@ async function pollForResult(requestId) {
     try {
         const res = await fetch(`${API_URL}/${requestId}`, {
             method: "GET",
-            headers: {
-                "Authorization": `Bearer ${API_KEY}`
-            }
+            headers: { "Authorization": `Bearer ${API_KEY}` }
         });
         const info = await res.json();
 
@@ -106,7 +93,6 @@ async function pollForResult(requestId) {
         } else {
             statusEl.innerText = "Video generation could not be completed. Please try again.";
         }
-
     } catch (err) {
         statusEl.innerText = "An error occurred while checking video status: " + err.message;
         console.error(err);

@@ -1,14 +1,14 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Digital Design Showcase</title>
+<title>Digital Design Portfolio</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-/* ---------- Reset & Base ---------- */
+/* ---------- Base ---------- */
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Arial', sans-serif; background: #0a0f2c; color: #fff; overflow-x: hidden; }
+body { font-family: 'Arial', sans-serif; background:#0a0f2c; color:#fff; overflow-x: hidden; }
+a { text-decoration:none; color: inherit; }
 
 /* ---------- Container ---------- */
 .container {
@@ -25,7 +25,7 @@ h1 {
   color: #00ffcc;
 }
 
-/* ---------- Image Grid ---------- */
+/* ---------- Grid ---------- */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -38,7 +38,9 @@ h1 {
   overflow: hidden;
   border-radius: 15px;
   cursor: pointer;
-  transition: transform 0.5s ease;
+  transform: scale(0.9);
+  opacity: 0;
+  transition: transform 0.6s ease, opacity 0.6s ease;
 }
 
 .card img {
@@ -60,7 +62,6 @@ h1 {
   pointer-events: none;
 }
 
-/* ---------- Card Caption ---------- */
 .card-caption {
   position: absolute;
   bottom: 20px;
@@ -71,49 +72,65 @@ h1 {
   text-shadow: 0 0 10px rgba(0,0,0,0.7);
 }
 
-/* ---------- Parallax Scroll Effect ---------- */
-.card[data-speed] {
-  transform: translateY(0px);
-  transition: transform 0.2s ease-out;
+/* ---------- Fade-in + Scale Animation ---------- */
+.card.visible {
+  transform: scale(1);
+  opacity: 1;
 }
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>Digital Design Showcase</h1>
+  <h1>My Digital Design Portfolio</h1>
 
   <div class="grid">
-    <div class="card" data-speed="2">
+    <div class="card">
       <img src="https://picsum.photos/600/400?random=1" alt="Design 1">
       <div class="card-caption">Creative Poster</div>
     </div>
-    <div class="card" data-speed="4">
+    <div class="card">
       <img src="https://picsum.photos/600/400?random=2" alt="Design 2">
       <div class="card-caption">Cinematic Banner</div>
     </div>
-    <div class="card" data-speed="3">
+    <div class="card">
       <img src="https://picsum.photos/600/400?random=3" alt="Design 3">
       <div class="card-caption">UI Concept</div>
     </div>
-    <div class="card" data-speed="5">
+    <div class="card">
       <img src="https://picsum.photos/600/400?random=4" alt="Design 4">
       <div class="card-caption">Motion Graphic</div>
+    </div>
+    <div class="card">
+      <img src="https://picsum.photos/600/400?random=5" alt="Design 5">
+      <div class="card-caption">Web Design Mockup</div>
+    </div>
+    <div class="card">
+      <img src="https://picsum.photos/600/400?random=6" alt="Design 6">
+      <div class="card-caption">Digital Illustration</div>
     </div>
   </div>
 </div>
 
 <script>
-// ---------- Simple Parallax Scroll ----------
-const cards = document.querySelectorAll('.card[data-speed]');
-window.addEventListener('scroll', () => {
-  const scrollTop = window.pageYOffset;
+// ---------- Fade-in + Scale on scroll ----------
+const cards = document.querySelectorAll('.card');
+
+function revealCards() {
+  const triggerBottom = window.innerHeight * 0.85;
+
   cards.forEach(card => {
-    const speed = card.getAttribute('data-speed');
-    card.style.transform = `translateY(${scrollTop / speed}px)`;
+    const cardTop = card.getBoundingClientRect().top;
+    if (cardTop < triggerBottom) {
+      card.classList.add('visible');
+    }
   });
-});
+}
+
+window.addEventListener('scroll', revealCards);
+window.addEventListener('load', revealCards);
 </script>
 
 </body>
 </html>
+

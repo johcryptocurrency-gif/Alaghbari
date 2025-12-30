@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>AI Image to Cinematic Video</title>
+<title>Cinematic Video from Image</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body { font-family: Arial; background:#0a0f2c; color:#fff; text-align:center; padding:20px; }
@@ -11,93 +11,95 @@ button { background:#00ffcc; color:#000; font-weight:bold; cursor:pointer; }
 video { width:100%; max-width:600px; margin-top:20px; border-radius:10px; }
 #status { color:#00ffcc; margin-top:10px; font-weight:bold; }
 a { display:block; margin-top:10px; color:#00ffcc; text-decoration:none; font-weight:bold; }
+canvas { display:none; }
 </style>
 </head>
 <body>
 
-<h1>AI Image → 15s Cinematic Video</h1>
+<h1>Cinematic Video from Image</h1>
 
 <input type="file" id="imageInput" accept="image/*"><br>
-<input type="text" id="prompt" placeholder="Describe cinematic scene..." value="Dynamic cinematic motion, smooth camera movement"><br>
+<button id="generateBtn">Generate Video</button>
 
-<button id="generateBtn">Generate Cinematic Video</button>
-
-<p id="status">Or try the <a href="demo/demo_video.mp4" target="_blank">Demo Video</a></p>
-
+<p id="status"></p>
 <video id="resultVideo" controls style="display:none"></video>
 <a id="downloadBtn" style="display:none;"></a>
+<canvas id="canvas"></canvas>
 
 <script>
 const imageInput = document.getElementById('imageInput');
-const promptInput = document.getElementById('prompt');
 const generateBtn = document.getElementById('generateBtn');
 const statusEl = document.getElementById('status');
 const resultVideo = document.getElementById('resultVideo');
 const downloadBtn = document.getElementById('downloadBtn');
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
 
-// ضع هنا API Key من deAPI أو أي خدمة Image-to-Video
-const API_URL = "https://api.deapi.ai/api/v1/client/img2video";
-const API_KEY = "YOUR_API_KEY_HERE";
-
-generateBtn.addEventListener('click', async () => {
+generateBtn.addEventListener('click', () => {
     const file = imageInput.files[0];
-    const prompt = promptInput.value.trim();
-    if (!file) return alert("Please select an image to generate video.");
+    if (!file) return alert("Please select an image!");
 
-    statusEl.innerText = "Preparing image and starting video generation...";
+    const img = new Image();
+    img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
 
-    const formData = new FormData();
-    formData.append("first_frame_image", file);
-    formData.append("prompt", prompt);
-    formData.append("frames", 450);
-    formData.append("fps", 30);
+        const fps = 30;
+        const duration = 15; // seconds
+        const totalFrames = fps * duration;
+        let frame = 0;
 
-    try {
-        const response = await fetch(API_URL, {
-            method: "POST",
-            headers: { "Authorization": `Bearer ${API_KEY}` },
-            body: formData
-        });
-        const data = await response.json();
-        if (!data.request_id) throw new Error("Unexpected response from the server.");
+        const stream = canvas.captureStream(fps);
+        const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+        const chunks = [];
 
-        statusEl.innerText = "Video generation in progress. Please wait...";
-        pollForResult(data.request_id);
-    } catch (err) {
-        statusEl.innerText = "Error starting video generation: " + err.message;
-        console.error(err);
-    }
-});
-
-async function pollForResult(requestId) {
-    try {
-        const res = await fetch(`${API_URL}/${requestId}`, {
-            method: "GET",
-            headers: { "Authorization": `Bearer ${API_KEY}` }
-        });
-        const info = await res.json();
-
-        if (info.status === "completed" && info.video_url) {
-            statusEl.innerText = "Video is ready for preview and download.";
-            resultVideo.src = info.video_url;
+        recorder.ondataavailable = e => { if(e.data && e.data.size>0) chunks.push(e.data); };
+        recorder.onstop = () => {
+            const blob = new Blob(chunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            resultVideo.src = url;
             resultVideo.style.display = "block";
 
-            downloadBtn.href = info.video_url;
-            downloadBtn.download = "cinematic_ai_video.mp4";
+            downloadBtn.href = url;
+            downloadBtn.download = "cinematic_video.webm";
             downloadBtn.innerText = "Download Video";
             downloadBtn.style.display = "block";
 
-        } else if (info.status === "processing") {
-            statusEl.innerText = "Processing video... " + (info.progress || "") + "% completed";
-            setTimeout(() => pollForResult(requestId), 3000);
-        } else {
-            statusEl.innerText = "Video generation could not be completed. Please try again.";
+            statusEl.innerText = "Video ready!";
+        };
+        recorder.start();
+
+        function draw() {
+            if (frame >= totalFrames) {
+                recorder.stop();
+                return;
+            }
+
+            // Clear canvas
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+
+            // Cinematic effect: slow zoom-in + pan
+            const scale = 1 + 0.1 * (frame/totalFrames);
+            const x = (canvas.width - canvas.width*scale)/2;
+            const y = (canvas.height - canvas.height*scale)/2;
+
+            ctx.drawImage(img, x, y, canvas.width*scale, canvas.height*scale);
+
+            // Optional: add color grading
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = "rgba(0,0,0,0.05)";
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+
+            frame++;
+            requestAnimationFrame(draw);
         }
-    } catch (err) {
-        statusEl.innerText = "An error occurred while checking video status: " + err.message;
-        console.error(err);
-    }
-}
+
+        draw();
+        statusEl.innerText = "Generating video, please wait...";
+    };
+
+    img.src = URL.createObjectURL(file);
+});
 </script>
 
 </body>
